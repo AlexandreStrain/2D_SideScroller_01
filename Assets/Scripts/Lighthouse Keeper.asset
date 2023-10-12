@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67ad83b5c614294bbe4dd4b9382351d, type: 3}
+  m_Name: Lighthouse Keeper
+  m_EditorClassIdentifier: 
+  _spriteType: 0
+  _maxHealth: 200
+  _patternDuration: 5
+  _canChangePattern: 1
+  _defaultAttackType: 2
+  _bullet: {fileID: 5232209891403508144, guid: aeec8f0d19742a44b926dac99c59ca01, type: 3}
+  _timeBetweenShots: 1
+  _shotOffset: {x: 1, y: 0}
+  _defaultMovementType: 1
+  _speed: 4
+  _jumpForce: 3500
+  _groundCheck:
+    serializedVersion: 2
+    m_Bits: 512
+  _rayXOffset: 0.15
+  _rayYOffset: 0.28
+  _shootSound: {fileID: 8300000, guid: 2735c8ffcc0d2764583aae8e352b9725, type: 3}
+  _hurtSound: {fileID: 8300000, guid: 11ef5c5065d23f54d9a511b6caf3a769, type: 3}
+  _deathSound: {fileID: 8300000, guid: 4ccd6524f84871841aafacb23f6e7ef1, type: 3}
+  _itemDrops:
+  - _itemPrefab: {fileID: 923742503057028864, guid: 96c9e67ca5623c54189bd9f51142e968,
+      type: 3}
+    _quantity: 50
+  - _itemPrefab: {fileID: 7019760784230004498, guid: f96b28613ca18f545a743f7e5b0c358f,
+      type: 3}
+    _quantity: 1
