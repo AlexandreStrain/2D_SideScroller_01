@@ -37,7 +37,7 @@ public static class MovePatterns
         if (ec._currentSpeed != 0)
         {
             //if enemy is moving and is about to hit something on either side
-            if (hitLeftSide.collider !=null ^ hitRightSide.collider != null)
+            if (hitLeftSide.collider != null ^ hitRightSide.collider != null)
             {
                 //reverse direction
                 ec._movement.x *= -1f;

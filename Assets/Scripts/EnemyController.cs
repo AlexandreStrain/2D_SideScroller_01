@@ -29,9 +29,14 @@ public class EnemyController : Sprite
     protected AttackPattern _attack;
     protected MovePattern _move;
 
-    public override void Init()
+    private void Start()
     {
-        base.Init();
+        Init(transform.position);
+    }
+
+    public override void Init(Vector2 startingPosition)
+    {
+        base.Init(startingPosition);
         //set the spawn location of the sprite
         _spawnLocation = transform.position;
 
@@ -49,12 +54,7 @@ public class EnemyController : Sprite
     {
         if (GameManager.Instance._isPaused)
         {
-            _rigidbody.simulated = false;
             return;
-        }
-        else
-        {
-            _rigidbody.simulated = true;
         }
 
         if (_stats._canChangePattern)
@@ -181,13 +181,17 @@ public class EnemyController : Sprite
             transform.GetComponentInChildren<CircleCollider2D>().enabled = false;
         }
 
+        CheckIfLevelBoss();
+        DropItems();
+    }
+
+    protected void CheckIfLevelBoss()
+    {
         if (_isBoss)
         {
             Debug.Log("Boss Defeated! Maybe do something special here?");
-            GameManager.Instance._isBossDefeated = true;
-            GameManager.Instance._onBossDefeat.Invoke();
+            GameManager.Instance._currentLevel.BossDefeated();
         }
-        DropItems();
     }
 
     protected void DropItems()
@@ -273,11 +277,6 @@ public class EnemyController : Sprite
                 break;
         }
 
-    }
-
-    void Start()
-    {
-        Init();
     }
 
     void Update()

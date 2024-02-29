@@ -27,6 +27,12 @@ public class Item : MonoBehaviour
         _rigidbody = GetComponentInChildren<Rigidbody2D>();
         //one can also get a GameObject attached to the parent GameObject
         _itemSprite = transform.GetChild(0).gameObject;
+        GameManager.Instance.OnToggleGamePause += TogglePhysics;
+    }
+
+    private void TogglePhysics()
+    {
+        _rigidbody.simulated = !(GameManager.Instance._isPaused);
     }
 
     //check for a Triggered Collision on the CircleCollider2D component
@@ -64,13 +70,9 @@ public class Item : MonoBehaviour
     {
         if (GameManager.Instance._isPaused)
         {
-            _rigidbody.simulated = false;
             return;
         }
-        else
-        {
-            _rigidbody.simulated = true;
-        }
+ 
         //if the item has been picked up and the pickup sound has finished playing
         if (_isPickedUp && !_audioSource.isPlaying)
         {

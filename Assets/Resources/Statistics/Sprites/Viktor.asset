@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f67ad83b5c614294bbe4dd4b9382351d, type: 3}
+  m_Name: Viktor
+  m_EditorClassIdentifier: 
+  _spriteType: 0
+  _maxHealth: 100
+  _patternDuration: 0
+  _canChangePattern: 0
+  _defaultAttackType: 0
+  _bullet: {fileID: 2034745742953622927, guid: e430a72ef81cfdd49888522a0fa53b08, type: 3}
+  _timeBetweenShots: 0.25
+  _shotOffset: {x: 0.8, y: 0.15}
+  _defaultMovementType: 0
+  _speed: 7
+  _jumpForce: 100
+  _groundCheck:
+    serializedVersion: 2
+    m_Bits: 512
+  _rayXOffset: 0.1
+  _rayYOffset: 0
+  _shootSound: {fileID: 8300000, guid: a1ed850690a187d41bc13fd01a0d65e6, type: 3}
+  _hurtSound: {fileID: 8300000, guid: d94078d478861ec4e85e9a4fe8fd0339, type: 3}
+  _deathSound: {fileID: 8300000, guid: 756208389c5786e45a9bf47c94e4fc0b, type: 3}
+  _itemDrops: []

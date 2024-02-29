@@ -30,7 +30,7 @@ public class Sprite : MonoBehaviour
 
 
     //This method will handle everything to initialize our Sprite's variables 
-    public virtual void Init()
+    public virtual void Init(Vector2 startingPosition)
     {
         //Acquire a Component that exists on the child GameObject of this script
         _rigidbody = GetComponent<Rigidbody2D>();
@@ -42,6 +42,9 @@ public class Sprite : MonoBehaviour
         _currentSpeed = _stats._speed;
         _currentHealth = _stats._maxHealth;
         HandleAnimations();
+        transform.position = startingPosition;
+
+        GameManager.Instance.OnToggleGamePause += TogglePhysics;
     }
 
     //This will act as our Timer, and will be called as the Sprite Updates
@@ -49,59 +52,57 @@ public class Sprite : MonoBehaviour
     {
         if (GameManager.Instance._isPaused)
         {
-            _rigidbody.simulated = false;
             return;
-        }
-        else
-        {
-            _rigidbody.simulated = true;
         }
 
         HandleAnimations();
 
-        if(!_isAlive)
+        if (_isAlive)
         {
-            return; //exit out early if sprite is not alive
+            HandleMovement(); //A call to the movement method created below
+            HandleLanding();
+            HandleShooting(); //call to the method
         }
+    }
 
-        HandleMovement(); //A call to the movement method created below
-        HandleLanding();
-        HandleShooting(); //call to the method
+    private void TogglePhysics()
+    {
+        _rigidbody.simulated = !(GameManager.Instance._isPaused);
     }
 
     public virtual void TakeDamage(float amount)
     {
-        if(!_isAlive)
+        if (_isAlive)
         {
-            return;
-        }
+            _currentHealth = Mathf.Clamp(_currentHealth - amount, 0f, _stats._maxHealth);
 
-        _currentHealth = Mathf.Clamp(_currentHealth - amount, 0f, _stats._maxHealth);
-
-        if(_currentHealth <= 0)
-        {
-            HandleDeath();
-        }
-        //if we did not die, we got hurt, so else plays the hurt sound effect
-        else
-        {
-            _audioSource.PlayOneShot(_stats._hurtSound);
+            if (_currentHealth <= 0)
+            {
+                HandleDeath();
+            }
+            //if we did not die, we got hurt, so else plays the hurt sound effect
+            else
+            {
+                _audioSource.PlayOneShot(_stats._hurtSound);
+            }
         }
     }
 
     protected virtual void HandleDeath()
     {
         _isAlive = false;
-        
-
-        //handle death sound effect
         _audioSource.PlayOneShot(_stats._deathSound);
     }
 
-    //This will be the method to handle moving the Sprite - as the name says
     protected virtual void HandleMovement()
     {
-        if(_movement.x < 0f)
+        DetermineDirection();
+        XAxisMovement();
+        YAxisMovement();
+    }
+    private void DetermineDirection()
+    {
+        if (_movement.x < 0f)
         {
             _direction = -1f;
         }
@@ -109,13 +110,18 @@ public class Sprite : MonoBehaviour
         {
             _direction = 1f;
         }
-
+    }
+    private void XAxisMovement()
+    {
         //There are short forms for Vector Directions, Vector2.right is 1x, 0y, 0z 
         //translation should work if the sprite isn't flying, unless handled in a move pattern
         if (_stats._spriteType != SpriteType.Flying && _currentMoveType != MoveType.Circle)
         {
             transform.Translate(Vector2.right * _movement.x * _currentSpeed * Time.deltaTime);
         }
+    }
+    private void YAxisMovement()
+    {
         /*We also want to know when we are on the ground before jumping and
         Know when there is input in the y direction,
         sprites that can fly also need to be accounted for*/

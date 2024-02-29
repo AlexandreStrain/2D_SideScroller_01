@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 
 public class InputController : MonoBehaviour
 {
-    public Sprite _player;
+    private Sprite _player;
 
     //Headers will be used to help organize our code
     [Header("DEBUG")]
@@ -18,6 +18,7 @@ public class InputController : MonoBehaviour
     // Start is called before the first frame update
     void Awake()
     {
+        _player = GameManager.Instance._player;
         //Create a reference to our PlayerInputActions created inside Unity
         _inputActions = new PlayerInputActions();
 
@@ -32,11 +33,8 @@ public class InputController : MonoBehaviour
         _inputActions.Player.Pause.performed += _ => PauseGame();
 
         _inputActions.UI.Start.performed += _ => StartGame();
-    }
 
-    private void Start()
-    {
-        _player.Init();
+        GameManager.Instance.OnGameRestart += Reset;
     }
 
     // Update is called once per frame
@@ -56,11 +54,9 @@ public class InputController : MonoBehaviour
         _inputActions.UI.Disable();
         _inputActions.Player.Enable();
 
-        GameManager.Instance._isPaused = false;
+        GameManager.Instance.ToggleGamePause(false);
 
-        UserInterface.Instance.ToggleTitleScreen(false);
-        UserInterface.Instance.TogglePauseScreen(false);
-        UserInterface.Instance.ToggleGameScreen(true);
+        UserInterface.Instance.SetToGameScreen();
     }
 
     //A callback is executable code that is passed as an argument to other code
@@ -84,10 +80,9 @@ public class InputController : MonoBehaviour
         _inputActions.UI.Enable();
         _inputActions.Player.Disable();
 
-        GameManager.Instance._isPaused = true;
+        GameManager.Instance.ToggleGamePause(true);
 
-        UserInterface.Instance.ToggleGameScreen(false);
-        UserInterface.Instance.TogglePauseScreen(true);
+        UserInterface.Instance.SetToPauseScreen();
     }
 
     public void Reset()

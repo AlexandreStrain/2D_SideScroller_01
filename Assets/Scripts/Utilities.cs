@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-//-- TAGS --
+
 public static class Tags
 {
     //Sprites
@@ -15,22 +15,25 @@ public static class Tags
     public static string events = "Event";
 }
 
-//-- ANIMATIONS --
+
+
 public static class AnimationStates
 {
     //Sprites
+    public static int alive = Animator.StringToHash("IsAlive");
     public static int movementX = Animator.StringToHash("MovementX");
     public static int direction = Animator.StringToHash("Direction");
     public static int grounded = Animator.StringToHash("IsGrounded");
     public static int shooting = Animator.StringToHash("IsShooting");
-    public static int alive = Animator.StringToHash("IsAlive");
+
 
     //Bullets
-    public static int exploding = Animator.StringToHash("IsExploding");
     public static int bulletType = Animator.StringToHash("Type");
+    public static int exploding = Animator.StringToHash("IsExploding");
 }
 
-//-- ENUMERATIONS --
+
+
 
 //Sprites
 public enum SpriteType { Grounded, Flying }; 
@@ -43,11 +46,15 @@ public enum BulletType { Purple, Green, Red, Fire };
 //Collectables
 public enum ItemType { Health, Money };
 
-//-- DELEGATES --
+
+//Delegates
 public delegate void AttackPattern(EnemyController ec);
 public delegate void MovePattern(EnemyController ec);
+public delegate void Pause();
+public delegate void OnDefeat();
+public delegate void Reset();
 
-//-- STRUCTS --
+
 
 [Serializable]
 public struct ItemDrop

@@ -1,17 +1,14 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.Events;
+﻿using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
     public bool _isPaused = true;
+    public event Pause OnToggleGamePause;
+    public event Reset OnGameRestart;
 
     [Header("Player Information")]
-    public InputController _controls;
     public Sprite _player;
-    public Vector2 _playerStartLocation;
     public int _playerLives;
     public float _playerCoins;
 
@@ -21,19 +18,40 @@ public class GameManager : Singleton<GameManager>
     public int _currentLevelNumber = 1;
     public int _totalNumberOfLevels = 2;
 
-    [Header("Boss Information")]
-    public bool _isBossDefeated;
-    public UnityEvent _onBossDefeat;
-
-    [Header("Debug")]
+    [Header("Debug")] 
     public float _respawnDelay = 2f;
     private float _respawnTimer;
     
     
-    void Awake()
+    private void Awake()
+    {
+        GetPlayer();
+        LoadLevel("Level" + _currentLevelNumber);
+    }
+
+    private void Start()
+    {
+        RestartGame();
+        ToggleGamePause(true);
+    }
+
+    private void GetPlayer()
     {
         _player = GameObject.FindGameObjectWithTag(Tags.player).GetComponent<Sprite>();
-        RestartLevel();
+    }
+
+    private void RestartGame()
+    {
+        //lives and coins revert back to original values
+        _playerLives = 3;
+        _playerCoins = 0;
+
+        _currentLevel.RestartLevel();
+    }
+    public void ToggleGamePause(bool state)
+    {
+        _isPaused = state;
+        OnToggleGamePause();
     }
 
     void Update()
@@ -56,61 +74,57 @@ public class GameManager : Singleton<GameManager>
             //if the player runs out of lives
             if (_playerLives-- <= 0)
             {
+                OnGameRestart();
                 //game starts back at the main menu on level one
-                _isPaused = true;
+                ToggleGamePause(true);
                 _currentLevelNumber = 1;
-                _controls.Reset();
-                UserInterface.Instance.ToggleTitleScreen(true);
-                UserInterface.Instance.ToggleBossUI(false);
-                UserInterface.Instance.ToggleGameScreen(false);
-                RestartLevel();
+                LoadLevel("Level" + _currentLevelNumber);
+                UserInterface.Instance.SetToTitleScreen();
+
+                RestartGame();
+
             }
             else
             {
+                _currentLevel.RestartLevel();
                 //if player still has lives, bring player back to start of level
-                _player.Init();
-                _player.transform.position = _playerStartLocation;
-
-                //if boss is still alive, then reset Boss UI if activated
-                if (_currentLevel._boss._isAlive)
-                {
-                    _currentLevel.ToggleBossState(false);
-                }
+                _currentLevel.ResetBoss();
             }
         }
-    }
-
-    public void RestartLevel()
-    {
-        //lives and coins revert back to original values
-        _playerLives = 3;
-        _playerCoins = 0;
-
-        _player.Init();
-        _player.transform.position = _playerStartLocation;
-        _isBossDefeated = false;
-        LoadLevel("Level" + _currentLevelNumber);
     }
 
     public void LoadLevel(string levelName)
     {
-        //if there is more than one scene open, then a level has previously been loaded in
-        if (SceneManager.sceneCount > 1)
-        {
-            //unload the current level
-            SceneManager.UnloadSceneAsync(_currentScene);
-        }
+        UnloadPreviousLevelScene();
+
         //load in the correct level scene 
         SceneManager.LoadSceneAsync(levelName, LoadSceneMode.Additive);
+
         //keep track of the level scene that was loaded for later removal
         _currentScene = SceneManager.GetSceneByName(levelName);
     }
 
+    private void UnloadPreviousLevelScene()
+    {
+        //if there is more than one scene open, then a level has previously been loaded in
+        if (SceneManager.sceneCount > 1)
+        {
+            SceneManager.UnloadSceneAsync(_currentScene);
+        }
+    }
+    public void ResetPlayer()
+    {
+        _player.Init(_currentLevel.info._playerStartLocation);
+    }
+
     public void LoadNextLevel()
     {
-        _player.Init();
-        _player.transform.position = _playerStartLocation;
+        IncreaseLevelNumber();
 
+        LoadLevel("Level" + _currentLevelNumber);
+    }
+    private void IncreaseLevelNumber()
+    {
         //increment level number, but keep it within the total amount of levels
         //using remainder %
         if (_currentLevelNumber % _totalNumberOfLevels == 0)
@@ -121,18 +135,5 @@ public class GameManager : Singleton<GameManager>
         {
             _currentLevelNumber++;
         }
-
-
-        LoadLevel("Level" + _currentLevelNumber);
-
-        _isBossDefeated = false;
     }
-
-    public void OnBossDefeat()
-    {
-        _currentLevel.ToggleBossState(false);
-        _currentLevel._bossArea._reset.Invoke();
-        _currentLevel._bossArea.gameObject.SetActive(false);
-    }
-
 }

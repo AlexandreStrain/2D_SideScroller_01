@@ -103,8 +103,6 @@ public class Projectile : MonoBehaviour
                     hitSprite.TakeDamage(_stats._damage);
                     //the bullet should stop moving...
                     SetToExplode();
-                    //return exits this OnCollisionEnter2D method early
-                    return;
                 }
             }
             else if (_owner.CompareTag(Tags.enemy))
@@ -116,20 +114,16 @@ public class Projectile : MonoBehaviour
                     hitSprite.TakeDamage(_stats._damage);
                     //the bullet should stop moving...
                     SetToExplode();
-                    //return exits this OnCollisionEnter2D method early
-                    return;
                 }
                 else if (hitSprite.CompareTag(Tags.enemy))
                 {
                     //change the collider from being a solid collider to a trigger
                     _collider.isTrigger = true;
-                    return;
                 }
             }
         }
-
         //determine if the bullet has not exploded AND if the bullet hit the world OR another projectile instead...
-        if(collision.gameObject.CompareTag(Tags.world) || collision.gameObject.CompareTag(Tags.projectile))
+        else if(collision.gameObject.CompareTag(Tags.world) || collision.gameObject.CompareTag(Tags.projectile))
         {
             SetToExplode();
         }

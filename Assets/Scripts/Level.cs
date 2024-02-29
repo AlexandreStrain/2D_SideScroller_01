@@ -1,28 +1,64 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
+using UnityEngine.Events;
 
 public class Level : MonoBehaviour
 {
-    //get the default level music and the source that plays it
-    public AudioClip _levelMusic;
-    public AudioSource _audioSource;
+    private AudioSource _audioSource;
+    public LevelInformation info;
 
+
+    [Header("Boss Information")]
     //keep track of the enemy and the area that triggers the fight to start
     public EnemyController _boss;
+    public bool _isBossDefeated; //useful??
     public EventArea _bossArea;
+    public UnityEvent OnBossDefeat;
 
     void Awake()
     {
         _audioSource = GetComponent<AudioSource>();
-        _levelMusic = _audioSource.clip;
+        SetAndPlayMusic(info._defaultMusic);
 
-
-        //set the boss on the UserInterface to be the one the level has
-        UserInterface.Instance._boss = _boss;
-        UserInterface.Instance.Init();
-        _boss.gameObject.SetActive(false);
         GameManager.Instance._currentLevel = this;
+        UserInterface.Instance.Init();
+        ToggleBossState(false);
+        ResetBossArena();
+    }
+
+    public void RestartLevel()
+    {
+        GameManager.Instance._player.Init(info._playerStartLocation);
+        ResetBoss();
+    }
+
+    public void BossDefeated()
+    {
+        _isBossDefeated = true;
+        ToggleBossState(false);
+        OnBossDefeat.Invoke();
+        ResetLevelMusic();
+    }
+
+    private void ResetLevelMusic()
+    {
+        SetAndPlayMusic(info._defaultMusic);
+    }
+
+    private void SetAndPlayMusic(AudioClip ac)
+    {
+        _audioSource.Stop();
+        _audioSource.clip = ac;
+        _audioSource.Play();
+    }
+
+    public void ResetBoss()
+    {
+        //if boss is still alive, then reset Boss UI if activated
+        if (_boss._isAlive)
+        {
+            ToggleBossState(false);
+            ResetBossArena();
+        }
     }
 
     //depending on if the boss is defeated or not, enable or disable boss
@@ -30,30 +66,19 @@ public class Level : MonoBehaviour
     public void ToggleBossState(bool state)
     {
         UserInterface.Instance.ToggleBossUI(state);
-        
-        //restart audio to play default music
-        _audioSource.Stop();
-        _audioSource.clip = _levelMusic;
-        _audioSource.Play();
-
-        if (_boss._isAlive && !state)
-        {
-            _bossArea._reset.Invoke();
-            _boss._currentHealth = _boss._stats._maxHealth;
-
-            //disable GameObject in scene only if boss is still alive
-            _boss.gameObject.SetActive(state);
-        }
+        _boss.gameObject.SetActive(state);
     }
 
-    //fix BossArea script so it can still toggle UI
-    public void GetBossUI()
+    private void ResetBossArena()
     {
-        UserInterface.Instance.ToggleBossUI(true);
+        _bossArea._reset.Invoke();
+        _boss._currentHealth = _boss._stats._maxHealth;
+        SetAndPlayMusic(info._defaultMusic);
     }
 
     public void GoToNextLevel()
     {
         GameManager.Instance.LoadNextLevel();
+        GameManager.Instance.ResetPlayer();
     }
 }

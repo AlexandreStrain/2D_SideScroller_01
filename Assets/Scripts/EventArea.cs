@@ -8,18 +8,30 @@ public class EventArea : MonoBehaviour
 
     private void Awake()
     {
-        transform.parent = GameObject.FindGameObjectWithTag(Tags.events).transform;
+        ParentToEventsGameObjectInScene();
     }
 
-    //If Something runs into the Trigger on the EventArea's collider
+    private void ParentToEventsGameObjectInScene()
+    {
+        transform.parent = GameObject.FindGameObjectWithTag(Tags.events).transform;
+
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        /*and if it collides with a sprite, and the script on its parent GameObject
-         happens to be the player...*/
-        if (collision.transform.parent.CompareTag(Tags.player))
+        CallAllEvents(collision);
+    }
+
+    private void CallAllEvents(Collider2D collisionObject)
+    {
+        if (CollisionObjectIsPlayer(collisionObject))
         {
-            //invoke or call all events listening to run
             _allEvents.Invoke();
         }
+    }
+
+    private bool CollisionObjectIsPlayer(Collider2D collisionObject)
+    {
+        return collisionObject.transform.parent.CompareTag(Tags.player);
     }
 }
